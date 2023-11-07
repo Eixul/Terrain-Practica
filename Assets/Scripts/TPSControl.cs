@@ -26,12 +26,15 @@ public class TPSControl : MonoBehaviour
 
     bool _isGrounded;
     
+    private GameManager gameManager;
+
     // Start is called before the first frame update
     void Awake()
     {
         _controller = GetComponent<CharacterController>();
         _animator = GetComponentInChildren<Animator>();
         _camera = Camera.main.transform;
+        gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
     }
 
     // Update is called once per frame
@@ -40,16 +43,16 @@ public class TPSControl : MonoBehaviour
         _horizontal = Input.GetAxisRaw("Horizontal");
         _vertical = Input.GetAxisRaw("Vertical");
 
-        if(Input.GetButton("Fire2"))
+        if(Input.GetButton("Fire2") && gameManager._gameOver == false)
         {
             AimMovement();
         }
-        else
+        else if (gameManager._gameOver == false)
         {
             Movement();            
         }
 
-        Jump();
+        //Jump();
     }
 
     void Movement()
@@ -62,14 +65,10 @@ public class TPSControl : MonoBehaviour
         if(direction != Vector3.zero)
         {
             float targetAngle = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg + _camera.eulerAngles.y;
-            float smoothAngle = Mathf.SmoothDampAngle(transform.eulerAngles.y, _camera.eulerAngles.y, ref _turnSmoothVelocity, _turnSmoothTime);
+            float smoothAngle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref _turnSmoothVelocity, _turnSmoothTime);
             transform.rotation = Quaternion.Euler(0, smoothAngle, 0);
-        }
 
-        if(direction != Vector3.zero)
-        {
-
-            Vector3 moveDirection = Quaternion.Euler(0, 0, 0) * Vector3.forward;
+            Vector3 moveDirection = Quaternion.Euler(0, targetAngle, 0) * Vector3.forward;
             _controller.Move(moveDirection.normalized * _playerSpeed * Time.deltaTime);
         }
     }
@@ -95,7 +94,7 @@ public class TPSControl : MonoBehaviour
         }
 
 
-    void Jump()
+    /*void Jump()
     {
         _isGrounded = Physics.CheckSphere(_sensorPosition.position, _sensorRadius, _groundLayer);
 
@@ -111,5 +110,5 @@ public class TPSControl : MonoBehaviour
         _playerGravity.y += _gravity * Time.deltaTime;
         
         _controller.Move(_playerGravity * Time.deltaTime);
-    }
+    }*/
 }
