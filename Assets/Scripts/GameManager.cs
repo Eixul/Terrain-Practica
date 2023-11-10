@@ -4,11 +4,11 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
-    public bool _gameOver = false;
+    public bool dead = false;
     
-    void GameOver()
+    public void GameOver()
     {
-        if(Input.GetKeyDown("Positive Button"))
-        _gameOver = true;
+        //if(Input.GetKeyDown(KeyCode.P))
+        dead = true;
     }
 }

@@ -16,7 +16,7 @@ public class TPSControl : MonoBehaviour
     [SerializeField] float _turnSmoothTime = 0.1f;
 
     [SerializeField] float _jumpHeigh = 1;
-    float _gravity = -9.81f;
+    float _gravity = -2f;
 
     Vector3 _playerGravity;
     //variables sensor
@@ -26,7 +26,7 @@ public class TPSControl : MonoBehaviour
 
     bool _isGrounded;
     
-    private GameManager gameManager;
+    private GameManager gamingManager;
 
     // Start is called before the first frame update
     void Awake()
@@ -34,7 +34,7 @@ public class TPSControl : MonoBehaviour
         _controller = GetComponent<CharacterController>();
         _animator = GetComponentInChildren<Animator>();
         _camera = Camera.main.transform;
-        gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
+        gamingManager = GameObject.Find("GameManager").GetComponent<GameManager>();
     }
 
     // Update is called once per frame
@@ -43,16 +43,25 @@ public class TPSControl : MonoBehaviour
         _horizontal = Input.GetAxisRaw("Horizontal");
         _vertical = Input.GetAxisRaw("Vertical");
 
-        if(Input.GetButton("Fire2") && gameManager._gameOver == false)
+        if(Input.GetButton("Fire2") && gamingManager.dead == false)
         {
             AimMovement();
         }
-        else if (gameManager._gameOver == false)
+        else if (gamingManager.dead == false)
         {
             Movement();            
         }
 
-        //Jump();
+        if(gamingManager.dead == false)
+        {
+            Jump();
+        }
+        _animator.SetBool("IsJumping", !_isGrounded);
+
+        Muerte();
+
+
+        
     }
 
     void Movement()
@@ -94,13 +103,13 @@ public class TPSControl : MonoBehaviour
         }
 
 
-    /*void Jump()
+    void Jump()
     {
         _isGrounded = Physics.CheckSphere(_sensorPosition.position, _sensorRadius, _groundLayer);
 
         if(_isGrounded && _playerGravity.y < 0)
         {
-            _playerGravity.y = 0;
+            _playerGravity.y = -2;
         }
         if(_isGrounded && Input.GetButtonDown("Jump"))
         {
@@ -110,5 +119,23 @@ public class TPSControl : MonoBehaviour
         _playerGravity.y += _gravity * Time.deltaTime;
         
         _controller.Move(_playerGravity * Time.deltaTime);
-    }*/
+    }
+
+    void Muerte()
+    {
+        if(Input.GetKey(KeyCode.J) && gamingManager.dead == false)
+        {
+            gamingManager.GameOver();
+            _animator.SetTrigger("IsDead");
+        }
+    }
+
+    void OnTriggerEnter (Collider other)
+    {
+        if(other.gameObject.layer == 7 && gamingManager.dead == false)
+        {
+            gamingManager.GameOver();
+            _animator.SetTrigger("IsDead");
+        }
+    }
 }
